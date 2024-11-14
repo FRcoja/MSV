@@ -1,6 +1,12 @@
-<!DOCTYPE html>
-<html>
-<head>
+---
+layout: default
+title: "Bon de Commande MSV"
+---
+
+# Bon de Commande MSV
+
+Ceci est le contenu de ta page. Utilise Markdown ici pour laisser Jekyll appliquer le thème sans le code HTML.
+
     <meta charset="UTF-8">
     <title>Bon de Commande MSV</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
