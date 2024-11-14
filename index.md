@@ -1,3 +1,7 @@
+---
+layout: default
+title: "Ma Page d'Accueil"
+---
 <!DOCTYPE html>
 <html>
 <head>
