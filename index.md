@@ -1,3 +1,8 @@
+---
+layout: default
+title: "Bon de Commande MSV"
+---
+
 <!DOCTYPE html>
 <html>
 <head>
