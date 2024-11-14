@@ -1,7 +1,8 @@
 ---
 layout: default
-title: "Ma Page d'Accueil"
+title: "Bon de Commande MSV"
 ---
+
 <!DOCTYPE html>
 <html>
 <head>
