@@ -2,10 +2,6 @@
 layout: default
 title: "Bon de Commande MSV"
 ---
-
-# Bon de Commande MSV
-
-Ceci est le contenu de ta page. Utilise Markdown ici pour laisser Jekyll appliquer le thème sans le code HTML.
 <!DOCTYPE html>
 <html lang="fr">
 <head>
