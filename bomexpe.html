@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Éditeur de BOM (v1 by f.coja)</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.5;
+            background-color: #f3f4f6;
+            padding: 1rem;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+            color: #1f2937;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: #374151;
+        }
+
+        .input, .select, .textarea {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 1rem;
+            background-color: white;
+        }
+
+        .button {
+            width: 100%;
+            padding: 0.75rem 1.5rem;
+            background-color: #4f46e5;
+            color: white;
+            font-weight: 500;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .button:disabled {
+            background-color: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 4px;
+            background-color: #fee2e2;
+            border: 1px solid #ef4444;
+            color: #b91c1c;
+            margin-bottom: 1rem;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .address-details {
+            margin-top: 0.5rem;
+            padding: 1rem;
+            background-color: #f8fafc;
+            border-radius: 4px;
+            font-size: 0.875rem;
+        }
+
+        .mt-4 { margin-top: 1rem; }
+        .space-y-4 > * + * { margin-top: 1rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">Éditeur de BOM (v1.0 by f.coja)</h1>
+
+        <div id="error" class="alert hidden"></div>
+
+        <div class="form-group">
+            <label class="label">ADRESSES DE LIVRAISON (XLSX)</label>
+            <input type="file" id="complementFile" accept=".xlsx" class="input" />
+        </div>
+
+        <div class="form-group">
+            <label class="label">BOM (XLSX)</label>
+            <input type="file" id="bomFile" accept=".xlsx" class="input" />
+        </div>
+
+        <div id="mainForm" class="space-y-4 mt-4">
+            <div class="form-group">
+                <label class="label">Adresse de livraison</label>
+                <select id="addressSelect" class="select">
+                    <option value="">Sélectionner une adresse</option>
+                </select>
+                <div id="addressDetails" class="address-details hidden"></div>
+            </div>
+
+            <div class="form-group">
+                <label class="label">Date de livraison souhaitée</label>
+                <input type="date" id="deliveryDate" class="input" />
+            </div>
+
+            <div class="form-group">
+                <label class="label">Méthode de livraison</label>
+                <select id="deliveryMethod" class="select">
+                    <option value="">Sélectionner une méthode</option>
+                    <option value="GEODIS CALBERSON">GEODIS CALBERSON</option>
+                    <option value="SCHENKER">SCHENKER</option>
+                    <option value="KUEHNE+NAGEL">KUEHNE+NAGEL</option>
+                    <option value="ENLEVEMENT ENTREPOT">ENLEVEMENT ENTREPOT</option>
+                    <option value="CHRONOPOST">CHRONOPOST</option>
+                    <option value="autres">autres</option>
+                    <option value="CHRONOPOST XA287899948FR">CHRONOPOST XA287899948FR</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="label">Remarques pour préparation</label>
+                <textarea id="remarks" class="textarea" rows="4"></textarea>
+            </div>
+
+            <button id="exportButton" class="button" disabled>
+                Exporter BOM mise à jour
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let complementData = [];
+        let bomData = null;
+        let originalFileName = '';
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.classList.remove('hidden');
+        }
+
+        function hideError() {
+            document.getElementById('error').classList.add('hidden');
+        }
+
+        // Fonction pour vérifier si une chaîne est une date
+        function isDate(value) {
+            if (!value) return false;
+            const date = new Date(value);
+            return date instanceof Date && !isNaN(date);
+        }
+
+        // Fonction pour formater la date en YYYY-MM-DD
+        function formatDate(date) {
+            if (!date) return '';
+            const d = new Date(date);
+            if (isNaN(d.getTime())) return date; // Retourne la valeur originale si ce n'est pas une date valide
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        function readXLSXFile(file, callback) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    const jsonData = XLSX.utils.sheet_to_json(worksheet, { 
+                        raw: false,
+                        defval: ''
+                    });
+                    callback(jsonData);
+                } catch (err) {
+                    showError('Erreur lors de la lecture du fichier Excel');
+                    console.error(err);
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        document.getElementById('complementFile').addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            readXLSXFile(file, (data) => {
+                complementData = data;
+                const addressSelect = document.getElementById('addressSelect');
+                addressSelect.innerHTML = '<option value="">Sélectionner une adresse</option>';
+                complementData.forEach((addr) => {
+                    const option = document.createElement('option');
+                    option.value = addr['Shipping Address'];
+                    option.textContent = addr['Shipping Address'];
+                    addressSelect.appendChild(option);
+                });
+                hideError();
+            });
+        });
+
+        document.getElementById('bomFile').addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            originalFileName = file.name.replace('.xlsx', '');
+
+            readXLSXFile(file, (data) => {
+                bomData = data.filter(row => {
+                    return row.SKU && row['Item Name'] && 
+                           row.SKU.trim() !== '' && 
+                           row['Item Name'].trim() !== '';
+                });
+
+                // Formater toutes les dates des données importées
+                bomData = bomData.map(row => {
+                    const newRow = { ...row };
+                    if (newRow['Order Date']) {
+                        newRow['Order Date'] = formatDate(newRow['Order Date']);
+                    }
+                    if (newRow['CF.Date de livraison souhaitée']) {
+                        newRow['CF.Date de livraison souhaitée'] = formatDate(newRow['CF.Date de livraison souhaitée']);
+                    }
+                    return newRow;
+                });
+
+                document.getElementById('exportButton').disabled = false;
+                hideError();
+            });
+        });
+
+        document.getElementById('addressSelect').addEventListener('change', (event) => {
+            const selectedAddress = event.target.value;
+            const addressDetails = document.getElementById('addressDetails');
+            
+            if (!selectedAddress) {
+                addressDetails.classList.add('hidden');
+                return;
+            }
+
+            const address = complementData.find(addr => addr['Shipping Address'] === selectedAddress);
+            if (address) {
+                addressDetails.innerHTML = `
+                    <p class="font-medium">${address['Shipping Address'] || ''}</p>
+                    <p>${address['Shipping Street2'] || ''}</p>
+                    <p>${address['Shipping City'] || ''} ${address['Shipping Code'] || ''}</p>
+                    ${address['Shipping State'] ? `<p>${address['Shipping State']}</p>` : ''}
+                    <p>${address['Shipping Country'] || ''}</p>
+                    ${address['Shipping Phone'] ? `<p class="mt-2">Tél: ${address['Shipping Phone']}</p>` : ''}
+                `;
+                addressDetails.classList.remove('hidden');
+            }
+        });
+
+        document.getElementById('exportButton').addEventListener('click', () => {
+            if (!bomData || !complementData) {
+                showError('Veuillez d\'abord charger les fichiers');
+                return;
+            }
+
+            const selectedAddress = document.getElementById('addressSelect').value;
+            const deliveryDate = document.getElementById('deliveryDate').value;
+            const deliveryMethod = document.getElementById('deliveryMethod').value;
+            const remarks = document.getElementById('remarks').value;
+
+            if (!selectedAddress || !deliveryMethod) {
+                showError('Veuillez sélectionner une adresse et une méthode de livraison');
+                return;
+            }
+
+            try {
+                const address = complementData.find(addr => addr['Shipping Address'] === selectedAddress);
+                
+                const updatedData = bomData.map(row => {
+                    const newRow = { ...row };
+                    
+                    // Conserver la date originale pour Order Date
+                    newRow['Order Date'] = row['Order Date'];
+                    
+                    newRow['Shipping Address'] = address['Shipping Address'] || '';
+                    newRow['Shipping Street2'] = address['Shipping Street2'] || '';
+                    newRow['Shipping City'] = address['Shipping City'] || '';
+                    newRow['Shipping State'] = address['Shipping State'] || '';
+                    newRow['Shipping Country'] = address['Shipping Country'] || '';
+                    newRow['Shipping Code'] = address['Shipping Code'] || '';
+                    newRow['Shipping Phone'] = address['Shipping Phone'] || '';
+                    newRow['Delivery Method'] = deliveryMethod;
+                    newRow['CF.REMARQUES POUR PREPARATION'] = remarks;
+                    newRow['CF.Date de livraison souhaitée'] = formatDate(deliveryDate);
+                    
+                    return newRow;
+                });
+
+                const wb = XLSX.utils.book_new();
+                const ws = XLSX.utils.json_to_sheet(updatedData);
+
+                // Ajouter la worksheet au workbook
+                XLSX.utils.book_append_sheet(wb, ws, "BOM");
+
+                // Export avec le nouveau nom de fichier
+                const exportFileName = `${originalFileName}_complet.xlsx`;
+                XLSX.writeFile(wb, exportFileName);
+
+                hideError();
+            } catch (err) {
+                showError('Erreur lors de l\'export');
+                console.error(err);
+            }
+        });
+    </script>
+</body>
+</html>
