@@ -3,11 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MSV Home</title>
+    <title>Page principale</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            color: #fff;
+            text-align: center;
+            background: url('./images/capture_2024-11-15.png') no-repeat center center fixed;
+            background-size: cover; /* L'image s'ajuste à la taille de la fenêtre */
+        }
+
+        .container {
+            padding: 50px;
+            background: rgba(0, 0, 0, 0.7); /* Fond semi-transparent pour le contenu */
+            border-radius: 10px;
+            display: inline-block;
+            margin-top: 10%;
+        }
+
+        nav a {
+            margin: 10px;
+            padding: 10px 15px;
+            text-decoration: none;
+            color: white;
+            background-color: #007BFF;
+            border-radius: 5px;
+        }
+
+        nav a:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
-    <h1>Bienvenue sur MSV</h1>
-    <p><a href="./BOM/">Accéder à la page BOM</a></p>
-    <p><a href="./bomExpe/">Accéder à la page bomExpe</a></p>
+    <!-- Contenu principal -->
+    <div class="container">
+        <h1>Bienvenue sur MSV</h1>
+        <p>Explorez les différentes pages disponibles :</p>
+        <nav>
+            <a href="./BOM/">Page BOM</a>
+            <a href="./bomExpe/">Page bomExpe</a>
+        </nav>
+    </div>
 </body>
 </html>
+
