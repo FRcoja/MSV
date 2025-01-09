@@ -452,11 +452,11 @@ function parseCSVStock(content) {
                 }
 
                 return {
-                    id: values[colIndexes.id].trim(),
-                    sku: values[colIndexes.sku].trim(),
-                    item_name: values[colIndexes.item_name].trim(),
-                    qty: parseInt(values[colIndexes.qty]) || 0,
-                    price: parsePrice(values[colIndexes.price])
+                    id: values[colIndexes.id]?.trim() || '1', // Valeur par défaut : "1"
+                    sku: values[colIndexes.sku]?.trim() || '1',
+                    item_name: values[colIndexes.item_name]?.trim() || '1',
+                    qty: parseInt(values[colIndexes.qty]) || 1, // Par défaut : 1
+                    price: parsePrice(values[colIndexes.price] || '1') // Par défaut : 1
                 };
             })
             .filter(item => item !== null && item.sku && item.item_name);
@@ -479,7 +479,7 @@ function parseExcelStock(content) {
 
         const headers = jsonData[0].map(h => h?.toString().trim());
 
-        // Même mapping que pour CSV
+        // Mapping flexible des colonnes
         const columnMapping = {
             id: ['ID', 'id', 'reference', 'ref'],
             sku: ['sku', 'SKU', 'code', 'article_code', 'code_article'],
@@ -498,33 +498,24 @@ function parseExcelStock(content) {
         }
 
         const data = jsonData.slice(1)
-            .filter(row => row.length >= headers.length)
-            .map((row, index) => {
-                try {
-                    let priceStr = row[colIndexes.price]?.toString() || '0';
-                    if (typeof row[colIndexes.price] === 'number') {
-                        priceStr = row[colIndexes.price].toString();
-                    }
+            .map(row => {
+                const filledRow = row.map(value => value?.toString().trim());
 
-                    return {
-                        id: row[colIndexes.id]?.toString().trim() || 'ID Inconnu',
-                        sku: row[colIndexes.sku]?.toString().trim() || 'SKU Inconnu',
-                        item_name: row[colIndexes.item_name]?.toString().trim() || 'Article Sans Nom',
-                        qty: parseInt(row[colIndexes.qty]) || 0,
-                        price: parsePrice(priceStr || '0.00')
-                    };
-                } catch (e) {
-                    console.warn(`Ligne ${index + 2} ignorée:`, e);
-                    return null;
-                }
-            })
-            .filter(item => item !== null && item.sku && item.item_name);
+                return {
+                    id: filledRow[colIndexes.id] || '1', // Remplit uniquement si vide
+                    sku: filledRow[colIndexes.sku] || '1',
+                    item_name: filledRow[colIndexes.item_name] || '1',
+                    qty: filledRow[colIndexes.qty] !== undefined && filledRow[colIndexes.qty] !== '' ? parseInt(filledRow[colIndexes.qty]) : 1, // Remplit uniquement si vide
+                    price: filledRow[colIndexes.price] !== undefined && filledRow[colIndexes.price] !== '' ? parsePrice(filledRow[colIndexes.price]) : 1 // Remplit uniquement si vide
+                };
+            });
 
         return { success: true, data };
     } catch (error) {
         return { success: false, error: `Erreur format Excel: ${error.message}` };
     }
 }
+
 
 function updateStockPreview(items) {
     const tbody = document.getElementById('stockPreviewBody');
