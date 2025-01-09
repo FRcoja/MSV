@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Bon de Commande MSV (v1.0 by f.coja)</title>
+    <title>Bon de Commande MSV</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
@@ -123,12 +123,9 @@
     </style>
 </head>
 <body>
-    
     <div class="container py-4">
-        <h2 class="mb-4">Bon de Commande MSV (v1.0 by f.coja)</h2>
-           <footer>
-        <a href="../">Retour à l'accueil</a>
-           </footer>
+        <h2 class="mb-4">Bon de Commande MSV</h2>
+
         <!-- Import du Stock -->
         <div class="card mb-4">
             <div class="card-header d-flex justify-content-between align-items-center">
@@ -290,15 +287,6 @@ const EXPORT_COLUMNS = [
     'SKU',
     'Item Name',
     'QuantityOrdered',
-    'Delivery Method',
-    'Shipping Address',
-    'Shipping Street2',
-    'Shipping City',
-    'Shipping State',
-    'Shipping Country',
-    'Shipping Code',
-    'Shipping Phone',
-    'CF.REMARQUES POUR PREPARATION',
     'SalesOrder Number',
     'Customer Name',
     'Currency Code',
@@ -726,8 +714,7 @@ function setupItemRowEvents(row, itemData) {
         
         const quantity = parseInt(e.target.value);
         if (quantity > currentStockItem.qty) {
-            showNotification(`Stock insuffisant. Maximum: ${currentStockItem.qty}`, 'error');
-            e.target.value = currentStockItem.qty;
+            showNotification(`Stock insuffisant. Ajout quand même avec ${quantity} unités.`, 'info');
         } else if (quantity < 1) {
             e.target.value = 1;
         }
@@ -1006,13 +993,7 @@ function prepareExportData(orderData) {
         rowData['Item Name'] = item.item_name;
         rowData['QuantityOrdered'] = item.quantity;
 
-        // Colonnes d'expédition explicitement vides
-        const shippingColumns = [
-            'Delivery Method', 'Shipping Address', 'Shipping Street2',
-            'Shipping City', 'Shipping State', 'Shipping Country',
-            'Shipping Code', 'Shipping Phone', 'CF.REMARQUES POUR PREPARATION'
-        ];
-        shippingColumns.forEach(col => rowData[col] = '');
+
 
         // Ajout des valeurs fixes
         Object.assign(rowData, FIXED_VALUES);
