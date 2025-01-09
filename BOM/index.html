@@ -233,7 +233,7 @@
                             <input type="file" id="bulkFileInput" class="form-control" accept=".csv,.xlsx,.xls">
                             <small class="text-muted">Format: fichier avec colonnes SKU et Quantité</small>
                         </div>
-                        <textarea id="bulkImport" class="form-control mb-2" rows="4" 
+                        <textarea id="bulkImport" class="form-control mb-2" rows="4"
                             placeholder="SKU, Quantité&#10;Un article par ligne"></textarea>
                         <div class="form-check mb-2">
                             <input class="form-check-input" type="checkbox" id="addK2Prefix">
@@ -322,13 +322,13 @@ function formatPrice(price) {
 function parsePrice(priceStr) {
     if (typeof priceStr === 'number') return priceStr;
     if (!priceStr) return 0;
-    
+
     let cleanedStr = priceStr
         .toString()
         .replace('€', '')
         .replace(/\s/g, '')
         .trim();
-        
+
     if (cleanedStr.includes(',')) {
         cleanedStr = cleanedStr.replace(',', '.');
     }
@@ -341,8 +341,8 @@ function showNotification(message, type = 'success') {
     const notif = document.createElement('div');
     notif.className = `notification ${type}`;
     notif.innerHTML = `
-        <i class="bi ${type === 'success' ? 'bi-check-circle' : 
-                      type === 'error' ? 'bi-exclamation-circle' : 
+        <i class="bi ${type === 'success' ? 'bi-check-circle' :
+                      type === 'error' ? 'bi-exclamation-circle' :
                       'bi-info-circle'}"></i>
         <span class="ms-2">${message}</span>
     `;
@@ -410,7 +410,7 @@ function readFileContent(file) {
         const reader = new FileReader();
         reader.onload = (e) => resolve(e.target.result);
         reader.onerror = (e) => reject(new Error('Erreur de lecture du fichier'));
-        
+
         if (file.name.endsWith('.csv')) {
             reader.readAsText(file, 'UTF-8');
         } else {
@@ -423,7 +423,7 @@ function parseCSVStock(content) {
     try {
         const lines = content.split(/\r?\n/).filter(line => line.trim());
         const headers = lines[0].split(';').map(h => h.trim());
-        
+
         // Mapping plus flexible des colonnes
         const columnMapping = {
             id: ['ID', 'id', 'reference', 'ref'],
@@ -478,7 +478,7 @@ function parseExcelStock(content) {
         }
 
         const headers = jsonData[0].map(h => h?.toString().trim());
-        
+
         // Même mapping que pour CSV
         const columnMapping = {
             id: ['ID', 'id', 'reference', 'ref'],
@@ -507,11 +507,11 @@ function parseExcelStock(content) {
                     }
 
                     return {
-                        id: row[colIndexes.id]?.toString().trim(),
-                        sku: row[colIndexes.sku]?.toString().trim(),
-                        item_name: row[colIndexes.item_name]?.toString().trim(),
+                        id: row[colIndexes.id]?.toString().trim() || 'ID Inconnu',
+                        sku: row[colIndexes.sku]?.toString().trim() || 'SKU Inconnu',
+                        item_name: row[colIndexes.item_name]?.toString().trim() || 'Article Sans Nom',
                         qty: parseInt(row[colIndexes.qty]) || 0,
-                        price: parsePrice(priceStr)
+                        price: parsePrice(priceStr || '0.00')
                     };
                 } catch (e) {
                     console.warn(`Ligne ${index + 2} ignorée:`, e);
@@ -528,7 +528,7 @@ function parseExcelStock(content) {
 
 function updateStockPreview(items) {
     const tbody = document.getElementById('stockPreviewBody');
-    
+
     if (!items.length) {
         tbody.innerHTML = `
             <tr>
@@ -576,18 +576,18 @@ function createItemRow(itemData = {}) {
             </div>
             <div class="col-md-3">
                 <div class="position-relative">
-                    <input type="text" class="form-control sku-input" 
+                    <input type="text" class="form-control sku-input"
                            placeholder="SKU" value="${itemData.sku || ''}"
                            autocomplete="off">
                     <div class="search-results d-none"></div>
                 </div>
             </div>
             <div class="col-md-3">
-                <input type="text" class="form-control item-name" 
+                <input type="text" class="form-control item-name"
                        placeholder="Nom de l'article" value="${itemData.item_name || ''}" readonly>
             </div>
             <div class="col-md-1">
-                <input type="number" class="form-control quantity-input" 
+                <input type="number" class="form-control quantity-input"
                        min="1" value="${itemData.quantity || 1}">
             </div>
             <div class="col-md-2">
@@ -621,15 +621,15 @@ function createItemRow(itemData = {}) {
     const colorSelect = row.querySelector('.row-color');
     colorSelect.addEventListener('change', (e) => {
         const color = e.target.value;
-        
+
         // Supprimer toutes les classes de couleur existantes
         row.classList.remove('light-green', 'light-orange', 'light-red', 'light-blue');
-        
+
         // Ajouter la nouvelle classe si une couleur est sélectionnée
         if (color !== 'none') {
             row.classList.add(color);
         }
-        
+
         // Mise à jour des données
         const index = Array.from(row.parentNode.children).indexOf(row);
         items[index].color = color === 'none' ? null : color;
@@ -651,8 +651,8 @@ function setupItemRowEvents(row, itemData) {
             return;
         }
 
-        const matches = stockItems.filter(item => 
-            item.sku.toLowerCase().includes(search) || 
+        const matches = stockItems.filter(item =>
+            item.sku.toLowerCase().includes(search) ||
             item.item_name.toLowerCase().includes(search)
         ).slice(0, 15);
 
@@ -686,45 +686,45 @@ function setupItemRowEvents(row, itemData) {
 
         const sku = searchItem.dataset.sku;
         currentStockItem = stockItems.find(item => item.sku === sku);
-        
+
         if (currentStockItem) {
             skuInput.value = currentStockItem.sku;
             row.querySelector('.item-name').value = currentStockItem.item_name;
             row.querySelector('.price-input').value = currentStockItem.price;
-            row.querySelector('.stock-status').className = 
+            row.querySelector('.stock-status').className =
                 `stock-status ${currentStockItem.qty > 0 ? 'text-success' : 'text-danger'}`;
             row.querySelector('.stock-status').textContent = `Stock disponible: ${currentStockItem.qty}`;
-            
+
             const index = Array.from(row.parentNode.children).indexOf(row);
             items[index] = {
                 ...currentStockItem,
                 quantity: parseInt(row.querySelector('.quantity-input').value)
             };
-            
+
             updateTotal();
             saveDraftLocal();
         }
-        
+
         searchResults.classList.add('d-none');
     });
 
     const quantityInput = row.querySelector('.quantity-input');
     quantityInput.addEventListener('change', (e) => {
         if (!currentStockItem) return;
-        
+
         const quantity = parseInt(e.target.value);
         if (quantity > currentStockItem.qty) {
             showNotification(`Stock insuffisant. Ajout quand même avec ${quantity} unités.`, 'info');
         } else if (quantity < 1) {
             e.target.value = 1;
         }
-        
+
         const index = Array.from(row.parentNode.children).indexOf(row);
         items[index] = {
             ...currentStockItem,
             quantity: parseInt(e.target.value)
         };
-        
+
         updateTotal();
         saveDraftLocal();
     });
@@ -768,7 +768,7 @@ function setupDragAndDrop(row) {
             }
             // Mise à jour du tableau items
             items = Array.from(container.children).map((row, index) => {
-                const itemIndex = items.findIndex(item => 
+                const itemIndex = items.findIndex(item =>
                     item.sku === row.querySelector('.sku-input').value);
                 return items[itemIndex];
             });
@@ -779,7 +779,7 @@ function setupDragAndDrop(row) {
 
 function getDragAfterElement(container, y) {
     const draggableElements = [...container.querySelectorAll('.item-row:not(.dragging)')];
-    
+
     return draggableElements.reduce((closest, child) => {
         const box = child.getBoundingClientRect();
         const offset = y - box.top - box.height / 2;
@@ -794,7 +794,7 @@ function getDragAfterElement(container, y) {
 // Import multiple
 function handleBulkFileImport(file) {
     const reader = new FileReader();
-    
+
     reader.onload = async (e) => {
         try {
             let data;
@@ -823,31 +823,31 @@ function handleBulkFileImport(file) {
 function parseBulkCSV(content) {
     const lines = content.split(/\r?\n/).filter(line => line.trim());
     const headers = lines[0].split(',').map(h => h.trim().toLowerCase());  // Changé ; en , pour le séparateur
-    
+
     // Liste étendue des noms possibles pour les colonnes
     const skuHeaders = [
-        'sku', 
-        'art. no', 
-        'article nr.', 
+        'sku',
+        'art. no',
+        'article nr.',
         'article nr',  // Ajouté sans point
-        'article', 
+        'article',
         'référence'
     ];
-    
+
     const qtyHeaders = [
-        'quantity', 
-        'qty', 
+        'quantity',
+        'qty',
         'amount',      // Important pour votre cas
-        'nombre', 
+        'nombre',
         'quantité'
     ];
 
     // Recherche des index des colonnes avec gestion plus souple des espaces et de la casse
-    const skuIndex = headers.findIndex(h => 
+    const skuIndex = headers.findIndex(h =>
         skuHeaders.some(sh => h.replace(/[.,\s]/g, '').toLowerCase() === sh.replace(/[.,\s]/g, '').toLowerCase())
     );
-    
-    const qtyIndex = headers.findIndex(h => 
+
+    const qtyIndex = headers.findIndex(h =>
         qtyHeaders.some(qh => h.replace(/[.,\s]/g, '').toLowerCase() === qh.replace(/[.,\s]/g, '').toLowerCase())
     );
 
@@ -888,31 +888,31 @@ function parseBulkExcel(content) {
     }
 
     const headers = jsonData[0].map(h => h?.toString().toLowerCase().trim());
-    
+
     // Liste étendue des noms possibles pour les colonnes
     const skuHeaders = [
-        'sku', 
-        'art. no', 
-        'article nr.', 
+        'sku',
+        'art. no',
+        'article nr.',
         'article nr',  // Ajouté sans point
-        'article', 
+        'article',
         'référence'
     ];
-    
+
     const qtyHeaders = [
-        'quantity', 
-        'qty', 
+        'quantity',
+        'qty',
         'amount',      // Important pour votre cas
-        'nombre', 
+        'nombre',
         'quantité'
     ];
 
     // Recherche des index des colonnes avec gestion plus souple des espaces et de la casse
-    const skuIndex = headers.findIndex(h => 
+    const skuIndex = headers.findIndex(h =>
         skuHeaders.some(sh => h.replace(/[.,\s]/g, '').toLowerCase() === sh.replace(/[.,\s]/g, '').toLowerCase())
     );
-    
-    const qtyIndex = headers.findIndex(h => 
+
+    const qtyIndex = headers.findIndex(h =>
         qtyHeaders.some(qh => h.replace(/[.,\s]/g, '').toLowerCase() === qh.replace(/[.,\s]/g, '').toLowerCase())
     );
 
@@ -1035,7 +1035,7 @@ function exportToCSV() {
 
         const exportData = prepareExportData(orderData);
         const rows = [EXPORT_COLUMNS.join(';')];
-        
+
         exportData.forEach(row => {
             const rowValues = EXPORT_COLUMNS.map(col => {
                 const value = row[col]?.toString() || '';
@@ -1132,14 +1132,14 @@ function restoreDraft(draftData) {
     document.getElementById('supplier').value = draftData.supplier || '';
     document.getElementById('orderDate').value = draftData.orderDate || '';
     document.getElementById('orderStatus').value = draftData.status || 'draft';
-    
+
     items = draftData.items || [];
     document.getElementById('itemsList').innerHTML = '';
     items.forEach(item => {
         const row = createItemRow(item);
         document.getElementById('itemsList').appendChild(row);
     });
-    
+
     updateTotal();
     updateOrderStatus();
 }
@@ -1147,7 +1147,7 @@ function restoreDraft(draftData) {
 function updateOrderStatus() {
     const status = document.getElementById('orderStatus').value;
     const orderCard = document.getElementById('orderCard');
-    
+
     orderCard.classList.remove('status-draft', 'status-confirmed');
     orderCard.classList.add(`status-${status}`);
 
@@ -1291,12 +1291,12 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('loadDraftFile').addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (!file) return;
-        
+
         if (items.length > 0 && !confirm('Cette action remplacera la commande en cours. Continuer ?')) {
             e.target.value = '';
             return;
         }
-        
+
         const reader = new FileReader();
         reader.onload = (e) => {
             try {
