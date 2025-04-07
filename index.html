@@ -166,109 +166,110 @@
             </div>
         </div>
 
-        <!-- Détails de la commande -->
-        <div class="card mb-4" id="orderCard">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center gap-3">
-                    <h5 class="mb-0">Détails de la commande</h5>
-                    <select id="orderStatus" class="form-select form-select-sm" style="width: 150px;">
-                        <option value="draft" class="bg-warning text-dark">Brouillon</option>
-                        <option value="confirmed" class="bg-success text-white">Confirmé</option>
-                    </select>
-                </div>
-                <div class="btn-group">
-                    <button class="btn btn-outline-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown">
-                        <i class="bi bi-save"></i> Sauvegarder
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li>
-                            <a class="dropdown-item" href="#" id="saveDraftLocal">
-                                <i class="bi bi-bookmark"></i> Sauvegarder en local
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item" href="#" id="saveDraftFile">
-                                <i class="bi bi-download"></i> Télécharger le brouillon
-                            </a>
-                        </li>
-                    </ul>
-                    <button class="btn btn-outline-secondary btn-sm" onclick="document.getElementById('loadDraftFile').click()">
-                        <i class="bi bi-folder-open"></i> Charger
-                    </button>
-                    <input type="file" id="loadDraftFile" accept=".json" class="d-none">
-                </div>
-            </div>
-            <div class="card-body">
-                <!-- En-tête de commande -->
-                <div class="row mb-3">
-                    <div class="col-md-4">
-                        <label class="form-label">Nom du client</label>
-                        <input type="text" id="supplier" class="form-control" required>
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label">WorkOrder</label>
-                        <input type="text" id="orderNumber" class="form-control" required>
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label">Date</label>
-                        <input type="date" id="orderDate" class="form-control" required>
-                    </div>
-                </div>
-
-                <!-- Boutons d'action -->
-                <div class="mb-3">
-                    <button id="showImport" class="btn btn-secondary" disabled>
-                        <i class="bi bi-upload"></i> Import Multiple
-                    </button>
-                    <button id="clearAll" class="btn btn-outline-danger">
-                        <i class="bi bi-trash"></i> Tout effacer
-                    </button>
-                </div>
-
-                <!-- Section Import Multiple -->
-                <div id="importSection" class="card mb-3 d-none">
-                    <div class="card-body">
-                        <h6>Import en masse</h6>
-                        <div class="mb-3">
-                            <input type="file" id="bulkFileInput" class="form-control" accept=".csv,.xlsx,.xls">
-                            <small class="text-muted">Format: fichier avec colonnes SKU et Quantité</small>
-                        </div>
-                        <textarea id="bulkImport" class="form-control mb-2" rows="4"
-                            placeholder="SKU, Quantité&#10;Un article par ligne"></textarea>
-                        <div class="form-check mb-2">
-                            <input class="form-check-input" type="checkbox" id="addK2Prefix">
-                            <label class="form-check-label" for="addK2Prefix">
-                                Ajouter le préfixe "K2-" aux SKUs
-                            </label>
-                        </div>
-                        <button id="processImport" class="btn btn-primary">
-                            <i class="bi bi-check-lg"></i> Importer
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Liste des articles -->
-                <div id="itemsList" class="mb-3"></div>
-
-                <button id="addItem" class="btn btn-primary" disabled>
-                    <i class="bi bi-plus-lg"></i> Ajouter un article
-                </button>
-            </div>
+<!-- Détails de la commande -->
+<div class="card mb-4" id="orderCard">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center gap-3">
+            <h5 class="mb-0">Détails de la commande</h5>
+            <select id="orderStatus" class="form-select form-select-sm" style="width: 150px;">
+                <option value="draft" class="bg-warning text-dark">Brouillon</option>
+                <option value="confirmed" class="bg-success text-white">Confirmé</option>
+            </select>
         </div>
-
-        <!-- Barre d'actions -->
-        <div class="d-flex justify-content-between align-items-center">
-            <h4 id="totalAmount">Total: 0,00 €</h4>
-            <div class="btn-group">
-                <button id="exportXls" class="btn btn-success">
-                    <i class="bi bi-file-excel"></i> Export XLS
-                </button>
-                <button id="exportCsv" class="btn btn-success">
-                    <i class="bi bi-file-text"></i> Export CSV
-                </button>
-            </div>
+        <div class="btn-group">
+            <button class="btn btn-outline-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown">
+                <i class="bi bi-save"></i> Sauvegarder
+            </button>
+            <ul class="dropdown-menu">
+                <li>
+                    <a class="dropdown-item" href="#" id="saveDraftLocal">
+                        <i class="bi bi-bookmark"></i> Sauvegarder en local
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="#" id="saveDraftFile">
+                        <i class="bi bi-download"></i> Télécharger le brouillon
+                    </a>
+                </li>
+            </ul>
+            <!-- Bouton "Charger" masqué avec d-none -->
+            <button class="btn btn-outline-secondary btn-sm d-none" onclick="document.getElementById('loadDraftFile').click()">
+                <i class="bi bi-folder-open"></i> Charger
+            </button>
+            <input type="file" id="loadDraftFile" accept=".json" class="d-none">
         </div>
     </div>
+    <div class="card-body">
+        <!-- En-tête de commande -->
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label class="form-label">Nom du client</label>
+                <input type="text" id="supplier" class="form-control" required>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">WorkOrder</label>
+                <input type="text" id="orderNumber" class="form-control" required>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Date</label>
+                <input type="date" id="orderDate" class="form-control" required>
+            </div>
+        </div>
+
+        <!-- Boutons d'action -->
+        <div class="mb-3">
+            <button id="showImport" class="btn btn-secondary" disabled>
+                <i class="bi bi-upload"></i> Import Multiple
+            </button>
+            <button id="clearAll" class="btn btn-outline-danger">
+                <i class="bi bi-trash"></i> Tout effacer
+            </button>
+        </div>
+
+        <!-- Section Import Multiple -->
+        <div id="importSection" class="card mb-3 d-none">
+            <div class="card-body">
+                <h6>Import en masse</h6>
+                <div class="mb-3">
+                    <input type="file" id="bulkFileInput" class="form-control" accept=".csv,.xlsx,.xls">
+                    <small class="text-muted">Format: fichier avec colonnes SKU et Quantité</small>
+                </div>
+                <textarea id="bulkImport" class="form-control mb-2" rows="4"
+                    placeholder="SKU, Quantité&#10;Un article par ligne"></textarea>
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="checkbox" id="addK2Prefix">
+                    <label class="form-check-label" for="addK2Prefix">
+                        Ajouter le préfixe "K2-" aux SKUs
+                    </label>
+                </div>
+                <button id="processImport" class="btn btn-primary">
+                    <i class="bi bi-check-lg"></i> Importer
+                </button>
+            </div>
+        </div>
+
+        <!-- Liste des articles -->
+        <div id="itemsList" class="mb-3"></div>
+
+        <button id="addItem" class="btn btn-primary" disabled>
+            <i class="bi bi-plus-lg"></i> Ajouter un article
+        </button>
+    </div>
+</div>
+
+<!-- Barre d'actions -->
+<div class="d-flex justify-content-between align-items-center">
+    <h4 id="totalAmount">Total: 0,00 €</h4>
+    <div class="btn-group">
+        <button id="exportXls" class="btn btn-success">
+            <i class="bi bi-file-excel"></i> Export XLS
+        </button>
+        <button id="exportCsv" class="btn btn-success">
+            <i class="bi bi-file-text"></i> Export CSV
+        </button>
+    </div>
+</div>
+</div>
 
     <!-- Zone de notifications -->
     <div id="notifications" class="notifications"></div>
@@ -279,34 +280,23 @@ let stockItems = [];
 let items = [];
 let lastSavedState = null;
 
-// Colonnes pour l'export
+// Colonnes pour l'export ODOO
 const EXPORT_COLUMNS = [
-    'Order Date',
-    'CF.Date de livraison souhaitée',
-    'PurchaseOrder',
-    'SKU',
-    'Item Name',
-    'QuantityOrdered',
-    'SalesOrder Number',
-    'Customer Name',
-    'Currency Code',
-    'Warehouse Name',
-    'Item Price',
-    'Item Tax',
-    'Item Tax %',
-    'Sales Person'
+      'Fournisseur',
+  //  'Item Name',
+   // 'QuantityOrdered',
 ];
 
-// Valeurs fixes pour l'export
+// Valeurs fixes pour l'export ODOO
 const FIXED_VALUES = {
-    'SalesOrder Number': 'DVSAS-4730',
-    'Customer Name': 'MAISON SOLAIRE VOLTALIA',
-    'Currency Code': 'EUR',
-    'Warehouse Name': 'Distribution Voltalia',
-    'Item Price': '1',
-    'Item Tax': 'V.A.T',
-    'Item Tax %': '20.000000',
-    'Sales Person': 'ECHARIF Younes'
+      'Fournisseur': 'DISTRIBUTION VOLTALIA SAS',
+   //'Customer Name': 'MAISON SOLAIRE VOLTALIA',
+   //'Currency Code': 'EUR',
+   //'Warehouse Name': 'Distribution Voltalia',
+   //'Item Price': '1',
+    //'Item Tax': 'V.A.T',
+    //'Item Tax %': '20.000000',
+    //'Sales Person': 'ECHARIF Younes'
 };
 
 // Fonctions utilitaires
@@ -374,7 +364,7 @@ function getRowColor(colorName) {
     }
 }
 
-// Import du stock
+// Import du stock ODOO
 async function importStock(file) {
     try {
         const content = await readFileContent(file);
@@ -426,11 +416,9 @@ function parseCSVStock(content) {
 
         // Mapping plus flexible des colonnes
         const columnMapping = {
-            id: ['ID', 'id', 'reference', 'ref'],
-            sku: ['sku', 'SKU', 'code', 'article_code', 'code_article'],
-            item_name: ['item_name', 'name', 'nom', 'designation', 'article', 'Item Name'],
-            qty: ['qty', 'Qty', 'quantity', 'stock', 'Stock',"QuantityOrdered"],
-            price: ['price', 'Price', 'prix', 'unit_price', 'prix_unitaire']
+            sku: ['sku', 'SKU', 'code', 'article_code', 'code_article', 'Référence interne'],
+            item_name: ['item_name', 'name', 'nom', 'designation', 'article', 'Item Name', 'Nom'],
+            price: ['price', 'Price', 'prix', 'unit_price', 'prix_unitaire', 'Prix de vente']
         };
 
         const colIndexes = {};
@@ -481,11 +469,9 @@ function parseExcelStock(content) {
 
         // Mapping flexible des colonnes
         const columnMapping = {
-            id: ['ID', 'id', 'reference', 'ref'],
-            sku: ['sku', 'SKU', 'code', 'article_code', 'code_article'],
-            item_name: ['item_name', 'name', 'nom', 'designation', 'article', 'Item Name'],
-            qty: ['qty', 'Qty', 'quantity', 'stock', 'Stock'],
-            price: ['price', 'Price', 'prix', 'unit_price', 'prix_unitaire']
+            sku: ['sku', 'SKU', 'code', 'article_code', 'code_article', 'Référence interne'],
+            item_name: ['item_name', 'name', 'nom', 'designation', 'article', 'Item Name', 'Nom'],
+            price: ['price', 'Price', 'prix', 'unit_price', 'prix_unitaire', 'Prix de vente']
         };
 
         const colIndexes = {};
@@ -502,9 +488,9 @@ function parseExcelStock(content) {
                 const filledRow = row.map(value => value?.toString().trim());
 
                 return {
-                    id: filledRow[colIndexes.id] || '1', // Remplit uniquement si vide
-                    sku: filledRow[colIndexes.sku] || '1',
-                    item_name: filledRow[colIndexes.item_name] || '1',
+                    id: filledRow[colIndexes.id] || '?', // Remplit uniquement si vide
+                    sku: filledRow[colIndexes.sku] || '?',
+                    item_name: filledRow[colIndexes.item_name] || '?',
                     qty: filledRow[colIndexes.qty] !== undefined && filledRow[colIndexes.qty] !== '' ? parseInt(filledRow[colIndexes.qty]) : 1, // Remplit uniquement si vide
                     price: filledRow[colIndexes.price] !== undefined && filledRow[colIndexes.price] !== '' ? parsePrice(filledRow[colIndexes.price]) : 1 // Remplit uniquement si vide
                 };
@@ -936,23 +922,23 @@ function processBulkImport(importData) {
 
     importData.forEach((row, index) => {
         const stockItem = stockItems.find(item => item.sku === row.sku);
-        const itemName = row["Description de l'article"] || "Nom inconnu";
 
         if (stockItem) {
             const quantity = row.quantity;
             if (quantity > stockItem.qty) {
-                errors.push(`Ligne ${index + 1}: Stock insuffisant pour ${row.sku} (demandé: ${quantity}, disponible: ${stockItem.qty}) >>> IMPORTE SUR LA BOM QD MEME\n`);
+                errors.push(`Ligne ${index + 1}: Stock insuffisant pour ${row.sku} (demandé: ${quantity}, disponible: ${stockItem.qty})`);
+            } else {
+                const newItem = {
+                    ...stockItem,
+                    quantity
+                };
+                items.push(newItem);
+                const rowElement = createItemRow(newItem);
+                document.getElementById('itemsList').appendChild(rowElement);
+                imported++;
             }
-            const newItem = {
-                ...stockItem,
-                quantity
-            };
-            items.push(newItem);
-            const rowElement = createItemRow(newItem);
-            document.getElementById('itemsList').appendChild(rowElement);
-            imported++;
         } else {
-            errors.push(`ARTICLE ${row.sku} INTROUVABLE :  >>>> ATTENTION <<<  :  AUCUN IMPORT EFFECTUÉ SUR LA BOM POUR CET ARTICLE\n`);
+            errors.push(`Ligne ${index + 1}: SKU ${row.sku} non trouvé`);
         }
     });
 
@@ -967,28 +953,38 @@ function processBulkImport(importData) {
         alert('Détail des erreurs:\n\n' + errors.join('\n'));
     }
 }
-// Fonctions d'export
+// Fonctions d'export ODOO
 function prepareExportData(orderData) {
-    return items.map(item => {
+    return items.map((item, index) => {
         // Création de l'objet avec toutes les colonnes initialisées à vide
         const rowData = EXPORT_COLUMNS.reduce((acc, col) => {
             acc[col] = '';
             return acc;
         }, {});
-
-        // Ajout des valeurs spécifiques
-        rowData['Order Date'] = orderData.orderDate;
-        rowData['CF.Date de livraison souhaitée'] = '';
-        rowData['PurchaseOrder'] = `${orderData.supplier} - ${orderData.orderNumber} `;
-        rowData['SKU'] = item.sku;
-        rowData['Item Name'] = item.item_name;
-        rowData['QuantityOrdered'] = item.quantity;
-
-
-
-        // Ajout des valeurs fixes
-        Object.assign(rowData, FIXED_VALUES);
-
+        
+        // Ajout des valeurs spécifiques ODOO 
+        rowData['Référence interne'] = item.sku;
+        rowData['Produit/Nom'] = item.item_name;
+        rowData['Produit/Quantité de matériel'] = item.quantity;
+        
+        // Ajouter 'Work Order' uniquement à la première ligne
+        if (index === 0) {
+            rowData['Work Order'] = orderData.orderNumber;
+        }
+        
+        // Ajout des valeurs fixes, en traitant la colonne 'Fournisseur' différemment
+        Object.entries(FIXED_VALUES).forEach(([key, value]) => {
+            // Pour 'Fournisseur', ajouter la valeur uniquement à la première ligne
+            if (key === 'Fournisseur') {
+                if (index === 0) {
+                    rowData[key] = value;
+                }
+            } else {
+                // Pour toutes les autres colonnes, ajouter la valeur à toutes les lignes
+                rowData[key] = value;
+            }
+        });
+        
         return rowData;
     });
 }
@@ -1011,7 +1007,7 @@ function exportToExcel() {
         }));
 
         XLSX.utils.book_append_sheet(wb, ws, "Commande");
-        XLSX.writeFile(wb, `${orderData.supplier}-${orderData.orderNumber}_${orderData.orderDate}.xlsx`);
+        XLSX.writeFile(wb, `BOM-${orderData.supplier}-${orderData.orderNumber}_${orderData.orderDate}.xlsx`);
         showNotification('Export Excel réussi');
     } catch (error) {
         showNotification('Erreur lors de l\'export Excel', 'error');
